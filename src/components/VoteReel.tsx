@@ -15,9 +15,10 @@ interface VoteReelProps {
   story: Story;
   hasVoted: boolean;
   onVote: () => void;
+  isUserStory?: boolean;
 }
 
-const VoteReel = ({ story, hasVoted, onVote }: VoteReelProps) => {
+const VoteReel = ({ story, hasVoted, onVote, isUserStory = false }: VoteReelProps) => {
   const genreColors = {
     romance: "from-pink-500 to-rose-500",
     thriller: "from-blue-600 to-indigo-600",
@@ -33,8 +34,14 @@ const VoteReel = ({ story, hasVoted, onVote }: VoteReelProps) => {
         holographic rounded-xl p-6 space-y-4 
         border-2 transition-all duration-300
         ${hasVoted ? "border-primary shadow-neon" : "border-card/30"}
+        ${isUserStory ? "ring-2 ring-accent/50" : ""}
       `}
     >
+      {isUserStory && (
+        <div className="mb-2 inline-block px-3 py-1 rounded-full bg-accent/20 border border-accent/50 text-xs font-title text-accent uppercase tracking-wider">
+          Your Story ⭐
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex-1">

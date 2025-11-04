@@ -43,6 +43,25 @@ const mockStories = [
 const VotingGallery = () => {
   const [votedStories, setVotedStories] = useState<Set<number>>(new Set());
   const navigate = useNavigate();
+  
+  // Get user's story details
+  const userName = localStorage.getItem("frameforge-user") || "You";
+  const userStory = localStorage.getItem("frameforge-story") || "";
+  const userTitle = localStorage.getItem("frameforge-title") || "Untitled Story";
+  const userGenre = localStorage.getItem("frameforge-genre") || "story";
+  
+  // Create user story object if exists
+  const userStoryObj = userStory ? {
+    id: 0,
+    title: userTitle,
+    author: userName,
+    genre: userGenre,
+    excerpt: userStory.substring(0, 150) + (userStory.length > 150 ? "..." : ""),
+    votes: 0,
+  } : null;
+  
+  // Combine user story with mock stories
+  const allStories = userStoryObj ? [userStoryObj, ...mockStories] : mockStories;
 
   const handleVote = (storyId: number) => {
     setVotedStories((prev) => {
@@ -85,7 +104,7 @@ const VotingGallery = () => {
 
         {/* Stories Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto mb-12">
-          {mockStories.map((story, index) => (
+          {allStories.map((story, index) => (
             <motion.div
               key={story.id}
               initial={{ opacity: 0, y: 30 }}
@@ -96,6 +115,7 @@ const VotingGallery = () => {
                 story={story}
                 hasVoted={votedStories.has(story.id)}
                 onVote={() => handleVote(story.id)}
+                isUserStory={story.id === 0}
               />
             </motion.div>
           ))}

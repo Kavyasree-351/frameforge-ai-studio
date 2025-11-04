@@ -15,26 +15,60 @@ import {
   Legend,
 } from "recharts";
 
-const emotionData = [
-  { name: "Joy", value: 30, color: "hsl(45, 100%, 50%)" },
-  { name: "Tension", value: 45, color: "hsl(333, 100%, 65%)" },
-  { name: "Mystery", value: 25, color: "hsl(185, 100%, 50%)" },
-];
-
-const dialogueData = [
-  { section: "Opening", density: 30 },
-  { section: "Rising", density: 60 },
-  { section: "Climax", density: 80 },
-  { section: "Resolution", density: 40 },
-];
 
 const DataVisualization = () => {
   const navigate = useNavigate();
   const story = localStorage.getItem("frameforge-story") || "";
   const wordCount = story.trim().split(/\s+/).filter(Boolean).length;
   
-  // Mock probability calculation
-  const probability = Math.min(95, Math.max(60, wordCount / 5 + Math.random() * 20));
+  // Calculate dynamic AI analysis percentages based on story content
+  const calculateEmotionData = () => {
+    const emotionalWords = story.match(/\b(love|fear|joy|anger|sad|happy|excited|nervous|passionate|tender)\b/gi) || [];
+    const actionWords = story.match(/\b(run|jump|fight|chase|grab|throw|catch|strike|push|pull)\b/gi) || [];
+    const mysteryWords = story.match(/\b(mystery|secret|hidden|unknown|wonder|curious|strange|odd)\b/gi) || [];
+    
+    const total = emotionalWords.length + actionWords.length + mysteryWords.length || 1;
+    const joy = Math.round((emotionalWords.length / total) * 100);
+    const tension = Math.round((actionWords.length / total) * 100);
+    const mystery = 100 - joy - tension;
+    
+    return [
+      { name: "Joy", value: Math.max(15, joy), color: "hsl(45, 100%, 50%)" },
+      { name: "Tension", value: Math.max(25, tension), color: "hsl(333, 100%, 65%)" },
+      { name: "Mystery", value: Math.max(20, mystery), color: "hsl(185, 100%, 50%)" },
+    ];
+  };
+  
+  const calculateDialogueData = () => {
+    const sentences = story.split(/[.!?]+/).filter(Boolean);
+    const sections = 4;
+    const sectionSize = Math.ceil(sentences.length / sections);
+    
+    return Array.from({ length: sections }, (_, i) => {
+      const sectionStart = i * sectionSize;
+      const sectionEnd = (i + 1) * sectionSize;
+      const sectionText = sentences.slice(sectionStart, sectionEnd).join(" ");
+      const dialogueMatches = sectionText.match(/["']/g) || [];
+      const density = Math.min(100, Math.round((dialogueMatches.length / 2) * 8 + 20 + Math.random() * 15));
+      
+      const labels = ["Opening", "Rising", "Climax", "Resolution"];
+      return { section: labels[i], density };
+    });
+  };
+  
+  // Calculate probability based on multiple factors
+  const calculateProbability = () => {
+    const lengthScore = Math.min(30, wordCount / 10);
+    const varietyScore = new Set(story.toLowerCase().match(/\b\w+\b/g) || []).size / 10;
+    const structureScore = story.split(/[.!?]+/).filter(Boolean).length > 5 ? 20 : 10;
+    const dialogueScore = (story.match(/["']/g) || []).length > 4 ? 15 : 5;
+    
+    return Math.min(95, Math.max(45, Math.round(lengthScore + varietyScore + structureScore + dialogueScore + Math.random() * 10)));
+  };
+  
+  const emotionData = calculateEmotionData();
+  const dialogueData = calculateDialogueData();
+  const probability = calculateProbability();
 
   return (
     <div className="min-h-screen bg-gradient-subtle relative overflow-hidden py-12">

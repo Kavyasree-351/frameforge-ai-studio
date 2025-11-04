@@ -17,6 +17,7 @@ const prompts = [
 
 const WriterStudio = () => {
   const [story, setStory] = useState("");
+  const [title, setTitle] = useState("");
   const [selectedPrompt, setSelectedPrompt] = useState<number | null>(null);
   const [aiFeedback, setAiFeedback] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -49,8 +50,9 @@ const WriterStudio = () => {
   };
 
   const handleSubmit = () => {
-    if (story.trim()) {
+    if (story.trim() && title.trim()) {
       localStorage.setItem("frameforge-story", story);
+      localStorage.setItem("frameforge-title", title);
       navigate("/data-visualization");
     }
   };
@@ -104,6 +106,16 @@ const WriterStudio = () => {
             transition={{ delay: 0.3 }}
             className="lg:col-span-6"
           >
+            <div className="holographic rounded-xl p-4 mb-4">
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Enter your story title..."
+                className="w-full bg-transparent border-none text-2xl font-title text-foreground placeholder:text-muted-foreground focus:outline-none"
+              />
+            </div>
+            
             <TypewriterInput
               value={story}
               onChange={setStory}
@@ -113,7 +125,7 @@ const WriterStudio = () => {
             
             <Button
               onClick={handleSubmit}
-              disabled={!story.trim()}
+              disabled={!story.trim() || !title.trim()}
               className="w-full mt-4 h-12 text-lg font-title bg-gradient-hero hover:shadow-neon transition-all duration-300"
             >
               <Send className="w-5 h-5 mr-2" />
